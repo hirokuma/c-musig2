@@ -4,6 +4,9 @@ OUTPUT_BINARY_DIRECTORY = .
 # source files
 C_DIRECTORY = ./src
 C_FILES += \
+	common.c \
+	signer.c \
+	coodinator.c \
 	main.c
 
 # object files
@@ -136,7 +139,7 @@ $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME): $(BUILD_DIRECTORIES) $(OBJECTS)
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME)
 
 mem:
-	valgrind --tool=memcheck --leak-check=full ./tst 2
+	valgrind --tool=memcheck --leak-check=full ./tst
 
 clean:
 	$(RM) $(OBJECT_DIRECTORY) $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME)
