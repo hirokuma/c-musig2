@@ -53,3 +53,76 @@ sigHash: ae7f512dfd7f6e62cdc5cc3cea350d609cf77d432884e958cad0292aec64d6d4
 sig64: 0836e5bb733cfb11036611558e30772b1699841ac94bc42351696dedab5b5b5bbcbe4683b5017aa698a84593281748d1f41ea1908d658123f970419813c5200e
 hex: 02000000000101b51cb76009876c5f0fd9f7678b02a60045ff17dc8e717c0332b5852e5ec845000000000000ffffffff01f0b9f50500000000160014adb802233d8444a772bf6c36a3ff82ee69fba71601400836e5bb733cfb11036611558e30772b1699841ac94bc42351696dedab5b5b5bbcbe4683b5017aa698a84593281748d1f41ea1908d658123f970419813c5200e00000000
 ```
+
+## sequence
+
+### Get public keys
+
+```mermaid
+sequenceDiagram
+  participant coodinator
+  participant signerA
+  participant signerB
+  participant signerC
+
+  Note over coodinator,signerC: signerGetPubkey
+  
+  coodinator->>signerA: request pubkey
+  Note over signerA: wally_ec_public_key_from_private_key
+  signerA -->>coodinator: pubkey
+  
+  coodinator->>signerB: request pubkey
+  Note over signerB: wally_ec_public_key_from_private_key
+  signerB -->>coodinator: pubkey
+  
+  coodinator->>signerC: request pubkey
+  Note over signerC: wally_ec_public_key_from_private_key
+  signerC -->>coodinator: pubkey
+
+  Note over coodinator: secp256k1_musig_pubkey_agg
+  Note over coodinator: address
+```
+
+### Sign
+
+```mermaid
+sequenceDiagram
+  participant coodinator
+  participant signerA
+  participant signerB
+  participant signerC
+
+  Note over coodinator,signerC: Phase 1: get pubnonce
+  
+  coodinator->>signerA: request pubnonce
+  Note over signerA: secp256k1_musig_nonce_gen
+  signerA-->>coodinator: pubnonce
+  
+  coodinator->>signerB: request pubnonce
+  Note over signerB: secp256k1_musig_nonce_gen
+  signerB-->>coodinator: pubnonce
+
+  coodinator->>signerC: request pubnonce
+  Note over signerC: secp256k1_musig_nonce_gen
+  signerC-->>coodinator: pubnonce
+
+
+  Note over coodinator,signerC: Phase 2: partial signature
+  
+  coodinator->>signerA: request sign
+  Note over signerA: secp256k1_musig_partial_sign
+  signerA-->>coodinator: sign
+  
+  coodinator->>signerB: request sign
+  Note over signerB: secp256k1_musig_partial_sign
+  signerB-->>coodinator: sign
+
+  coodinator->>signerC: request sign
+  Note over signerC: secp256k1_musig_partial_sign
+  signerC-->>coodinator: sign
+
+
+  Note over coodinator: secp256k1_musig_partial_sig_agg
+  Note over coodinator: wally_witness_p2tr_from_sig
+  
+```
