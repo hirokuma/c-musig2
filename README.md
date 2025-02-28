@@ -4,20 +4,31 @@
 
 ## prepare
 
-I use system installed `libsecp256k1`(built with `--enable-module-recovery`).  
-(Maybe "libsecp256k1-zkp" works fine too).
+Use system installed `libsecp256k1`(built with `--enable-module-recovery`).  
+v1.3.1 uses no-musig supported `libsecp256k1`.
 
-```bash
-mkdir -p libs/libwally-core
+```console
+$ git clone https://github.com/bitcoin-core/secp256k1.git
+$ cd secp256k1
+$ git checkout -b v0.6.0 refs/tags/v0.6.0
+$ ./autogen.sh
+$ ./configure --enable-module-recovery
+$ make
+$ sudo make install
+$ cd ..
+```
 
-git clone https://github.com/ElementsProject/libwally-core.git
-cd libwally-core
-git checkout -b v1.3.1 release_1.3.1
+Use libwally-core v1.3.1.
 
-./tools/autogen.sh
-./configure --prefix `pwd`/../libs/libwally-core --enable-minimal --disable-elements --enable-standard-secp --with-system-secp256k1 --disable-shared
-make
-make install
+```console
+$ git clone https://github.com/ElementsProject/libwally-core.git
+$ cd libwally-core
+$ git checkout -b v1.3.1 release_1.3.1
+
+.$ /tools/autogen.sh
+$ ./configure --prefix $HOME/.local --enable-minimal --disable-elements --enable-standard-secp --with-system-secp256k1 --disable-shared
+$ make
+$ make install
 ```
 
 ## build

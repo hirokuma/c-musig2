@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "libwally-core/include/wally_crypto.h"
+#include "wally_crypto.h"
 
 
 int signerGetPubkey(uint8_t pub[EC_PUBLIC_KEY_LEN], int signerId);

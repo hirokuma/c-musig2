@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "libwally-core/include/wally_core.h"
+#include "wally_core.h"
 
 #include "coodinator.h"
 

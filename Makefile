@@ -20,10 +20,10 @@ TESTS_SOURCE_FILES = $(addprefix $(TESTS_DIRECTORY)/, $(TESTS_FILES) )
 
 
 # includes common to all targets(-I<dir>)
-INC_PATHS = -I../libs
+INC_PATHS = -I${HOME}/.local/include
 
 # Link Library
-LIBS = -L ../libs/libwally-core -lwallycore -lsecp256k1
+LIBS = -L ${HOME}/.local/lib -lwallycore -lsecp256k1
 
 CFLAGS =
 LDFLAGS =
