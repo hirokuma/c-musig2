@@ -4,8 +4,8 @@
 
 ## prepare
 
-Use system installed `libsecp256k1`(built with `--enable-module-recovery`).  
-v1.3.1 uses no-musig supported `libsecp256k1`.
+Use system installed libsecp256k1(built with `--enable-module-recovery`).  
+(libwally-core v1.3.1 uses no-musig supported libsecp256k1.)
 
 ```console
 $ git clone https://github.com/bitcoin-core/secp256k1.git
@@ -124,5 +124,5 @@ sequenceDiagram
 
   Note over coodinator: secp256k1_musig_partial_sig_agg
   Note over coodinator: wally_witness_p2tr_from_sig
-  
+  Note over coodinator: wally_tx_to_bytes
 ```

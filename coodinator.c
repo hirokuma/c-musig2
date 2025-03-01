@@ -184,18 +184,21 @@ void address(void)
     printf("witness program: ");
     dump(witnessProgram, witnessProgramLen);
 
-    char *address;
+    char *address = NULL;
     rc = wally_addr_segwit_from_bytes(witnessProgram, witnessProgramLen, "bcrt", 0, &address);
     if (rc) {
         printf("error: wally_addr_segwit_from_bytes fail\n");
-        return;
+        goto cleanup;
     }
     printf("address: %s\n", address);
     if (strcmp(address, AGG_ADDR) != 0) {
         printf("address not same\n");
     }
 
-    wally_free_string(address);
+cleanup:
+    if (address) {
+        wally_free_string(address);
+    }
 }
 
 
@@ -205,6 +208,8 @@ void spent(void)
 
     int rc;
     struct wally_tx *tx = NULL;
+    struct wally_map *prevScriptPubKey = NULL;
+    struct wally_tx_witness_stack *witness = NULL;
 
     rc = wally_tx_init_alloc(
         2, // version
@@ -214,7 +219,7 @@ void spent(void)
         &tx);
     if (rc != WALLY_OK) {
         printf("error: wally_tx_init_alloc fail: %d\n", rc);
-        return;
+        goto cleanup;
     }
 
     const struct wally_tx_input TX_INPUT = {
@@ -229,7 +234,7 @@ void spent(void)
     rc = wally_tx_add_input(tx, &TX_INPUT);
     if (rc != WALLY_OK) {
         printf("error: wally_tx_add_input fail: %d\n", rc);
-        return;
+        goto cleanup;
     }
 
     uint8_t outAddrByte[WALLY_SEGWIT_ADDRESS_PUBKEY_MAX_LEN];
@@ -240,7 +245,7 @@ void spent(void)
         0, outAddrByte, sizeof(outAddrByte), &outAddrLen);
     if (rc != WALLY_OK) {
         printf("error: wally_addr_segwit_to_bytes fail: %d\n", rc);
-        return;
+        goto cleanup;
     }
 
     const struct wally_tx_output TX_OUTPUT = {
@@ -252,14 +257,13 @@ void spent(void)
     rc = wally_tx_add_output(tx, &TX_OUTPUT);
     if (rc != WALLY_OK) {
         printf("error: wally_tx_add_output fail: %d\n", rc);
-        return;
+        goto cleanup;
     }
 
-    struct wally_map *prevScriptPubKey;
     rc = wally_map_init_alloc(1, NULL, &prevScriptPubKey);
     if (rc != WALLY_OK) {
         printf("error: wally_map_init_alloc fail: %d\n", rc);
-        return;
+        goto cleanup;
     }
     rc = wally_map_add_integer(
         prevScriptPubKey,
@@ -267,7 +271,7 @@ void spent(void)
         WITNESS_PROGRAM, sizeof(WITNESS_PROGRAM)); // value
     if (rc != WALLY_OK) {
         printf("error: wally_map_add_integer fail: %d\n", rc);
-        return;
+        goto cleanup;
     }
 
     uint8_t sigHash[EC_MESSAGE_HASH_LEN];
@@ -285,10 +289,9 @@ void spent(void)
         0, // flags
         sigHash, sizeof(sigHash)
     );
-    wally_map_free(prevScriptPubKey);
     if (rc != WALLY_OK) {
         printf("error: wally_tx_get_btc_taproot_signature_hash fail: %d\n", rc);
-        return;
+        goto cleanup;
     }
     printf("sigHash: ");
     dump(sigHash, sizeof(sigHash));
@@ -302,17 +305,17 @@ void spent(void)
     rc = signerGetPubNonce(pubNonceData[0], 0, sigHash);
     if (rc != 0) {
         printf("error: signerGetPubNonce 0\n");
-        return;
+        goto cleanup;
     }
     rc = signerGetPubNonce(pubNonceData[1], 1, sigHash);
     if (rc != 0) {
         printf("error: signerGetPubNonce 1\n");
-        return;
+        goto cleanup;
     }
     rc = signerGetPubNonce(pubNonceData[2], 2, sigHash);
     if (rc != 0) {
         printf("error: signerGetPubNonce 2\n");
-        return;
+        goto cleanup;
     }
     /////////////////////////////////////////////////////////
 
@@ -321,7 +324,7 @@ void spent(void)
     for (int i = 0; i < SIGNER_NUM; i++) {
         if (!secp256k1_musig_pubnonce_parse(ctx, &pubnonces[i], pubNonceData[i])) {
             printf("error: secp256k1_musig_pubnonce_parse %d\n", i);
-            return;
+            goto cleanup;
         }
         pubnonce_ptr[i] = &pubnonces[i];
     }
@@ -329,7 +332,7 @@ void spent(void)
     secp256k1_musig_aggnonce agg_pubnonce;
     if (!secp256k1_musig_nonce_agg(ctx, &agg_pubnonce, pubnonce_ptr, SIGNER_NUM)) {
         printf("error: secp256k1_musig_nonce_agg\n");
-        return;
+        goto cleanup;
     }
 
     /////////////////////////////////////////////////////////
@@ -338,24 +341,24 @@ void spent(void)
     uint8_t aggNonce[66];
     if (!secp256k1_musig_aggnonce_serialize(ctx, aggNonce, &agg_pubnonce)) {
         printf("error: secp256k1_musig_aggnonce_serialize\n");
-        return;
+        goto cleanup;
     }
 
     uint8_t partialSigData[SIGNER_NUM][32];
     rc = signerGetPartialSign(partialSigData[0], 0, sigHash, aggNonce, publicKeys, ARRAY_SIZE(publicKeys));
     if (rc != 0) {
         printf("error: signerGetPartialSign 0\n");
-        return;
+        goto cleanup;
     }
     rc = signerGetPartialSign(partialSigData[1], 1, sigHash, aggNonce, publicKeys, ARRAY_SIZE(publicKeys));
     if (rc != 0) {
         printf("error: signerGetPartialSign 1\n");
-        return;
+        goto cleanup;
     }
     rc = signerGetPartialSign(partialSigData[2], 2, sigHash, aggNonce, publicKeys, ARRAY_SIZE(publicKeys));
     if (rc != 0) {
         printf("error: signerGetPartialSign 2\n");
-        return;
+        goto cleanup;
     }
     /////////////////////////////////////////////////////////
 
@@ -363,13 +366,13 @@ void spent(void)
     secp256k1_musig_keyagg_cache cache;
     if (aggPubKey(&agg_pk, &cache, publicKeys, ARRAY_SIZE(publicKeys))) {
         printf("error: aggPubKey fail\n");
-        return;
+        goto cleanup;
     }
 
     secp256k1_musig_session session;
     if (!secp256k1_musig_nonce_process(ctx, &session, &agg_pubnonce, sigHash, &cache)) {
         printf("error: secp256k1_musig_nonce_process fail\n");
-        return;
+        goto cleanup;
     }
 
     secp256k1_musig_partial_sig partial_sigs[SIGNER_NUM];
@@ -384,11 +387,11 @@ void spent(void)
         secp256k1_pubkey pub;
         if (!secp256k1_ec_pubkey_parse(ctx, &pub, publicKeys[i], EC_PUBLIC_KEY_LEN)) {
             printf("error: secp256k1_ec_pubkey_parse %d\n", i);
-            return;
+            goto cleanup;
         }
         if (!secp256k1_musig_partial_sig_verify(ctx, &partial_sigs[i], &pubnonces[i], &pub, &cache, &session)) {
             printf("error: secp256k1_musig_partial_sig_verify %d\n", i);
-            return;
+            goto cleanup;
         }
         partial_sigs_ptr[i] = &partial_sigs[i];
     }
@@ -396,7 +399,7 @@ void spent(void)
     uint8_t sig64[64];
     if (!secp256k1_musig_partial_sig_agg(ctx, sig64, &session, partial_sigs_ptr, ARRAY_SIZE(partial_sigs))) {
         printf("error: secp256k1_musig_partial_sig_agg fail\n");
-        return;
+        goto cleanup;
     }
     printf("sig64: ");
     dump(sig64, sizeof(sig64));
@@ -405,18 +408,16 @@ void spent(void)
         printf("error: sig not same\n");
     }
 
-    struct wally_tx_witness_stack *witness;
     rc = wally_witness_p2tr_from_sig(sig64, sizeof(sig64), &witness);
     if (rc != WALLY_OK) {
         printf("error: wally_witness_p2tr_from_sig fail: %d\n", rc);
-        return;
+        goto cleanup;
     }
     rc = wally_tx_set_input_witness(tx, 0, witness);
     if (rc != WALLY_OK) {
         printf("error: wally_tx_set_input_witness fail: %d\n", rc);
-        return;
+        goto cleanup;
     }
-    wally_tx_witness_stack_free(witness);
 
     uint8_t txData[1024];
     size_t txLen = 0;
@@ -426,7 +427,7 @@ void spent(void)
         txData, sizeof(txData), &txLen);
     if (rc != WALLY_OK) {
         printf("error: wally_tx_to_bytes fail: %d\n", rc);
-        return;
+        goto cleanup;
     }
     printf("hex: ");
     dump(txData, txLen);
@@ -437,5 +438,14 @@ void spent(void)
         printf("error: txData not same\n");
     }
 
-    wally_tx_free(tx);
+cleanup:
+    if (prevScriptPubKey) {
+        wally_map_free(prevScriptPubKey);
+    }
+    if (witness) {
+        wally_tx_witness_stack_free(witness);
+    }
+    if (tx) {
+        wally_tx_free(tx);
+    }
 }
