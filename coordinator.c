@@ -16,7 +16,7 @@
 #include "wally_script.h"
 
 #include "common.h"
-#include "coodinator.h"
+#include "coordinator.h"
 #include "signer.h"
 
 

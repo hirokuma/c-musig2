@@ -3,7 +3,7 @@
 
 #include "wally_core.h"
 
-#include "coodinator.h"
+#include "coordinator.h"
 
 
 int main(int argc, char *argv[])

@@ -60,69 +60,68 @@ hex: 02000000000101b51cb76009876c5f0fd9f7678b02a60045ff17dc8e717c0332b5852e5ec84
 
 ```mermaid
 sequenceDiagram
-  participant coodinator
+  participant coordinator
   participant signerA
   participant signerB
   participant signerC
 
-  Note over coodinator,signerC: signerGetPubkey
-  
-  coodinator->>signerA: request pubkey
+  coordinator->>signerA: request pubkey
   Note over signerA: wally_ec_public_key_from_private_key
-  signerA -->>coodinator: pubkey
+  signerA -->>coordinator: pubkey
   
-  coodinator->>signerB: request pubkey
+  coordinator->>signerB: request pubkey
   Note over signerB: wally_ec_public_key_from_private_key
-  signerB -->>coodinator: pubkey
+  signerB -->>coordinator: pubkey
   
-  coodinator->>signerC: request pubkey
+  coordinator->>signerC: request pubkey
   Note over signerC: wally_ec_public_key_from_private_key
-  signerC -->>coodinator: pubkey
+  signerC -->>coordinator: pubkey
 
-  Note over coodinator: secp256k1_musig_pubkey_agg
-  Note over coodinator: address
+  Note over coordinator: secp256k1_musig_pubkey_agg
+  Note over coordinator: address
 ```
 
 ### Sign
 
 ```mermaid
 sequenceDiagram
-  participant coodinator
+  participant coordinator
   participant signerA
   participant signerB
   participant signerC
 
-  Note over coodinator,signerC: Phase 1: get pubnonce
+  Note over coordinator,signerC: Phase 1: get pubnonce
   
-  coodinator->>signerA: request pubnonce
+  coordinator->>signerA: request pubnonce
   Note over signerA: secp256k1_musig_nonce_gen
-  signerA-->>coodinator: pubnonce
+  signerA-->>coordinator: pubnonce
   
-  coodinator->>signerB: request pubnonce
+  coordinator->>signerB: request pubnonce
   Note over signerB: secp256k1_musig_nonce_gen
-  signerB-->>coodinator: pubnonce
+  signerB-->>coordinator: pubnonce
 
-  coodinator->>signerC: request pubnonce
+  coordinator->>signerC: request pubnonce
   Note over signerC: secp256k1_musig_nonce_gen
-  signerC-->>coodinator: pubnonce
+  signerC-->>coordinator: pubnonce
 
+  Note over coordinator: secp256k1_musig_nonce_agg
 
-  Note over coodinator,signerC: Phase 2: partial signature
+  Note over coordinator,signerC: Phase 2: partial signature
   
-  coodinator->>signerA: request sign
+  coordinator->>signerA: request sign
   Note over signerA: secp256k1_musig_partial_sign
-  signerA-->>coodinator: sign
+  signerA-->>coordinator: sign
   
-  coodinator->>signerB: request sign
+  coordinator->>signerB: request sign
   Note over signerB: secp256k1_musig_partial_sign
-  signerB-->>coodinator: sign
+  signerB-->>coordinator: sign
 
-  coodinator->>signerC: request sign
+  coordinator->>signerC: request sign
   Note over signerC: secp256k1_musig_partial_sign
-  signerC-->>coodinator: sign
+  signerC-->>coordinator: sign
 
 
-  Note over coodinator: secp256k1_musig_partial_sig_agg
-  Note over coodinator: wally_witness_p2tr_from_sig
-  Note over coodinator: wally_tx_to_bytes
+  Note over coordinator: secp256k1_musig_partial_sig_agg
+  Note over coordinator: wally_witness_p2tr_from_sig
+  Note over coordinator: wally_tx_to_bytes
 ```

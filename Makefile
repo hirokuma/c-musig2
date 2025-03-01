@@ -6,7 +6,7 @@ C_DIRECTORY = ./src
 C_FILES += \
 	common.c \
 	signer.c \
-	coodinator.c \
+	coordinator.c \
 	main.c
 
 # object files
