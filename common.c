@@ -28,7 +28,8 @@ void dump(const uint8_t *data, size_t len)
 
 /* Tweak the pubkey corresponding to the provided keyagg cache, update the cache
  * and return the tweaked aggregate pk. */
-int tweak(const secp256k1_context* ctx, secp256k1_xonly_pubkey *agg_pk, secp256k1_musig_keyagg_cache *cache) {
+int tweak(const secp256k1_context* ctx, secp256k1_xonly_pubkey *agg_pk, secp256k1_musig_keyagg_cache *cache)
+{
     secp256k1_pubkey output_pk;
     /* For BIP 32 tweaking the plain_tweak is set to a hash as defined in BIP
      * 32. */
