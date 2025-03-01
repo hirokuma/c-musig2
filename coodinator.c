@@ -173,10 +173,10 @@ void address(void)
     uint8_t witnessProgram[WALLY_WITNESSSCRIPT_MAX_LEN];
     size_t witnessProgramLen = 0;
     rc = wally_witness_program_from_bytes_and_version(
-        agg_32, sizeof(agg_32),
-        1,
-        0,
-        witnessProgram, sizeof(witnessProgram), &witnessProgramLen);
+             agg_32, sizeof(agg_32),
+             1,
+             0,
+             witnessProgram, sizeof(witnessProgram), &witnessProgramLen);
     if (rc != WALLY_OK) {
         printf("error: wally_witness_program_from_bytes fail: %d\n", rc);
         return;
@@ -212,11 +212,11 @@ void spent(void)
     struct wally_tx_witness_stack *witness = NULL;
 
     rc = wally_tx_init_alloc(
-        2, // version
-        0, // locktime
-        1, // vin_cnt
-        1, // vout_cnt
-        &tx);
+             2, // version
+             0, // locktime
+             1, // vin_cnt
+             1, // vout_cnt
+             &tx);
     if (rc != WALLY_OK) {
         printf("error: wally_tx_init_alloc fail: %d\n", rc);
         goto cleanup;
@@ -240,9 +240,9 @@ void spent(void)
     uint8_t outAddrByte[WALLY_SEGWIT_ADDRESS_PUBKEY_MAX_LEN];
     size_t outAddrLen = 0;
     rc = wally_addr_segwit_to_bytes(
-        OUTADDR,
-        ADDR_FAMILY,
-        0, outAddrByte, sizeof(outAddrByte), &outAddrLen);
+             OUTADDR,
+             ADDR_FAMILY,
+             0, outAddrByte, sizeof(outAddrByte), &outAddrLen);
     if (rc != WALLY_OK) {
         printf("error: wally_addr_segwit_to_bytes fail: %d\n", rc);
         goto cleanup;
@@ -266,9 +266,9 @@ void spent(void)
         goto cleanup;
     }
     rc = wally_map_add_integer(
-        prevScriptPubKey,
-        0, // key
-        WITNESS_PROGRAM, sizeof(WITNESS_PROGRAM)); // value
+             prevScriptPubKey,
+             0, // key
+             WITNESS_PROGRAM, sizeof(WITNESS_PROGRAM)); // value
     if (rc != WALLY_OK) {
         printf("error: wally_map_add_integer fail: %d\n", rc);
         goto cleanup;
@@ -277,18 +277,18 @@ void spent(void)
     uint8_t sigHash[EC_MESSAGE_HASH_LEN];
     const uint64_t VALUES[] = { PREV_AMOUNT };
     rc = wally_tx_get_btc_taproot_signature_hash(
-        tx,
-        OUTPOINT_INDEX,
-        prevScriptPubKey, // scripts
-        VALUES, ARRAY_SIZE(VALUES),
-        NULL,  0, // tapleaf
-        0x00, // key version
-        WALLY_NO_CODESEPARATOR, // codesep position
-        NULL, 0, // annex
-        WALLY_SIGHASH_DEFAULT,
-        0, // flags
-        sigHash, sizeof(sigHash)
-    );
+             tx,
+             OUTPOINT_INDEX,
+             prevScriptPubKey, // scripts
+             VALUES, ARRAY_SIZE(VALUES),
+             NULL,  0, // tapleaf
+             0x00, // key version
+             WALLY_NO_CODESEPARATOR, // codesep position
+             NULL, 0, // annex
+             WALLY_SIGHASH_DEFAULT,
+             0, // flags
+             sigHash, sizeof(sigHash)
+         );
     if (rc != WALLY_OK) {
         printf("error: wally_tx_get_btc_taproot_signature_hash fail: %d\n", rc);
         goto cleanup;
@@ -422,9 +422,9 @@ void spent(void)
     uint8_t txData[1024];
     size_t txLen = 0;
     rc = wally_tx_to_bytes(
-        tx,
-        WALLY_TX_FLAG_USE_WITNESS,
-        txData, sizeof(txData), &txLen);
+             tx,
+             WALLY_TX_FLAG_USE_WITNESS,
+             txData, sizeof(txData), &txLen);
     if (rc != WALLY_OK) {
         printf("error: wally_tx_to_bytes fail: %d\n", rc);
         goto cleanup;

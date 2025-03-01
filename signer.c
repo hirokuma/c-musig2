@@ -42,7 +42,6 @@ static const uint8_t *privateKeys[SIGNER_NUM] = {
     privateKey3,
 };
 
-
 static int signerKeyPair(secp256k1_keypair* keypair, int signerId)
 {
     const struct secp256k1_context_struct *ctx = wally_get_secp_context();
@@ -63,8 +62,8 @@ int signerGetPubkey(uint8_t pub[EC_PUBLIC_KEY_LEN], int signerId)
     int rc;
 
     rc = wally_ec_public_key_from_private_key(
-        seckey, EC_PRIVATE_KEY_LEN,
-        pub, EC_PUBLIC_KEY_LEN);
+             seckey, EC_PRIVATE_KEY_LEN,
+             pub, EC_PUBLIC_KEY_LEN);
     if (rc != WALLY_OK) {
         printf("error: wally_ec_public_key_from_private_key fail: %d\n", rc);
         return 1;
@@ -103,15 +102,15 @@ static int calcNonce(
         return 1;
     }
     if (!secp256k1_musig_nonce_gen(
-            ctx,
-            secnonce,
-            pubnonce,
-            session_secrand,
-            seckey,
-            &pubkey,
-            sigHash,
-            NULL,
-            NULL)) {
+                ctx,
+                secnonce,
+                pubnonce,
+                session_secrand,
+                seckey,
+                &pubkey,
+                sigHash,
+                NULL,
+                NULL)) {
         printf("fail secp256k1_musig_nonce_gen %d\n", signerId);
         return 1;
     }
